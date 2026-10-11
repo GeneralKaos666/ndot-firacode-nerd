@@ -1,77 +1,83 @@
 # NDOT FiraCode Nerd
 
-A personal terminal font that renders [Nerd Font](https://github.com/ryanoasis/nerd-fonts)
-icons in the dot-matrix style of **Nothing's NDOT** while keeping normal
-letterforms untouched.
+A terminal font that combines a **dot-matrix (NDOT-style) base** with
+**FiraCode Nerd Font**, then redraws the Nerd Font icons as dots to match.
+Letters, digits and punctuation keep the base font's shapes — only the icon
+plane is restyled.
 
 ![NDOT FiraCode Nerd](docs/hero.png)
 
-The build merges two fonts and then redraws only the icon plane:
+## How it works
 
-| Role | Font | Code points |
+The build merges two fonts and then restyles the icons:
+
+| Role | Font | Covers |
 | --- | --- | --- |
-| Base (wins on overlap) | `ndot-47-inspired-by-nothing.ttf` — NDOT-style dot-matrix | letters, digits, punctuation |
-| Merge (fills the gaps) | `FiraCodeNerdFont-Regular.ttf` — Fira Code + Nerd Font patches | everything the base lacks |
-| Restyled | Nerd Font icons (PUA `E000–F8FF`, `F0000–FFFFD`, `100000–10FFFD`) | redrawn as NDOT-style dots |
+| **Base** — wins where both fonts have the same glyph | `ndot-47-inspired-by-nothing.ttf` (NDOT-style dot matrix) | letters, digits, punctuation |
+| **Merge** — fills in whatever the base is missing | `FiraCodeNerdFont-Regular.ttf` (Fira Code + Nerd Font patches) | everything else |
+| **Restyled** | Nerd Font icons in the Private Use Areas (`U+E000–U+F8FF`, `U+F0000–U+FFFFD`, `U+100000–U+10FFFD`) | redrawn as NDOT-style dots |
 
-Result: a ~38 MB TrueType face with ~12,885 glyphs, GSUB/GPOS intact,
-installed/usable in Termux.
+The result is a single TrueType file of about 38 MB and roughly 12,885 glyphs,
+with the original GSUB/GPOS layout tables kept intact.
 
-```
-ndot-firacode-nerd.ttf   # NDOT 47 base (2048 upm)  — published as a Release
-ndot57-firacode-nerd.ttf # Ndot57 base (1000 upm)  — personal build only, not distributed
-```
+Two faces can be built:
 
-The two source fonts are bundled in the repo (both freely licensed — see
-Compliance). Built outputs are published as [Releases](#releases) rather than
-committed.
+| File | Base | Distributed? |
+| --- | --- | --- |
+| `ndot-firacode-nerd.ttf` | NDOT 47 (open, 2048 upm) | **Yes** — attached to a [Release](#releases) |
+| `ndot57-firacode-nerd.ttf` | Ndot57 (proprietary, 1000 upm) | **No** — personal build only, kept local |
 
 ## Preview
 
-Real captures from a terminal in Termux (`xfce4-terminal` under Termux:X11)
-with the built font installed:
+Real screenshots taken in a terminal on Android (Termux) with the built font
+installed:
 
 ![Terminal session using NDOT FiraCode Nerd](docs/screenshot-termux.png)
 
-Every Nerd Font icon is redrawn from dots — Powerline, Font Awesome, Devicons,
+Every Nerd Font icon is drawn from dots — Powerline, Font Awesome, Devicons,
 Seti, Font Logos, Weather, Octicons, Material Design and Codicons — while
 letters, digits and punctuation keep the base font's dot-matrix forms:
 
 ![Nerd Font icons redrawn as NDOT dots](docs/screenshot-icons.png)
 
-The font-only specimens `docs/hero.png`, `docs/preview.png` and `docs/icons.png`
-are rendered directly from the built font by `docs/make_preview.py`.
+Font specimens rendered straight from the built font can be regenerated with
+`docs/make_preview.py`.
 
 ## Source fonts
 
-Bundled at the repo root:
+Both source fonts are bundled in this repository at the repo root, and both are
+openly licensed:
 
 | File | Origin | License |
 | --- | --- | --- |
-| `ndot-47-inspired-by-nothing.ttf` | [FontStruct → "NDOT 47 (inspired by NOTHING)"](https://fontstruct.com/fontstructions/show/2047444/ndot-45-inspired-by-nothing-1) by Interactivate | SIL OFL 1.1 |
-| `FiraCodeNerdFont-Regular.ttf` | [nerd-fonts](https://github.com/ryanoasis/nerd-fonts/releases) → `FiraCode.zip` | SIL OFL 1.1 + MIT |
+| `ndot-47-inspired-by-nothing.ttf` | [FontStruct — "NDOT 47 (inspired by NOTHING)"](https://fontstruct.com/fontstructions/show/2047444/ndot-45-inspired-by-nothing-1) by Interactivate | SIL OFL 1.1 |
+| `FiraCodeNerdFont-Regular.ttf` | [Fira Code](https://github.com/tonsky/FiraCode) patched by [Nerd Fonts](https://github.com/ryanoasis/nerd-fonts/releases) (from `FiraCode.zip`) | SIL OFL 1.1 (Fira Code) + MIT (Nerd Fonts) |
 
 ## Build
 
-Requires FontForge (CLI), Python 3, `fonttools`, `numpy`.
+You need FontForge, Python 3, `fonttools` and `numpy`.
 
 ```bash
-./build_ndot_firacode.sh                          # NDOT 47 → ndot-firacode-nerd.ttf
-./build_ndot_firacode.sh --cells 20               # any extra args pass to the restyle step
+./build_ndot_firacode.sh              # builds ndot-firacode-nerd.ttf
+./build_ndot_firacode.sh --cells 20   # extra arguments go to the restyle step
 ```
 
-Environment overrides: `BASE`, `MERGE`, `OUT`, `FAMILY`, `PSNAME`.
-What it does:
+The build runs in two steps:
 
-1. `native_merge.pe` (FontForge) merges base + merge, scaling the merge font
-   onto the base's units-per-em so the base wins cleanly on shared glyphs.
-   Output format follows the extension: `.ttf` → TrueType, `.otf` → CFF.
-2. `ndot_nerd_symbols.py` (fontTools + numpy) rasterizes each icon's outline
-   on a dot grid (default 16 cells/em, touching circles, 3×3 sub-sampling,
-   0.34 coverage threshold) and rebuilds the glyph from dots. Handles both
-   `glyf` (TTF) and CFF (OTF) tables, recalculating bounds and side bearings.
+1. **`native_merge.pe`** (FontForge) merges the base with the merge font,
+   scaling the merge font onto the base's units-per-em. Because the base comes
+   first, it wins wherever the two fonts share a glyph. The output format
+   follows the file extension: `.ttf` gives TrueType outlines, `.otf` gives CFF.
+2. **`ndot_nerd_symbols.py`** (fontTools + numpy) rasterises each icon's
+   outline onto a dot grid — 16 cells per em by default, touching circles, 3×3
+   sub-sampling and a 0.34 coverage threshold — and rebuilds the glyph from
+   dots. It handles both `glyf` (TTF) and CFF (OTF) tables, and recalculates
+   the glyph bounds and side bearings.
 
-Install on Termux:
+The `BASE`, `MERGE`, `OUT`, `FAMILY` and `PSNAME` environment variables
+override the defaults (see the top of `build_ndot_firacode.sh`).
+
+### Install on Termux
 
 ```bash
 cp ndot-firacode-nerd.ttf ~/.termux/fonts/
@@ -85,58 +91,64 @@ The prebuilt face is attached to
 
 | Asset | Base | License |
 | --- | --- | --- |
-| `ndot-firacode-nerd.ttf` | NDOT 47 (OFL) | SIL OFL 1.1 — free to use, modify and share |
+| `ndot-firacode-nerd.ttf` | NDOT 47 (open) | SIL OFL 1.1 — free to use, modify and share |
 
-A second face built from Nothing's proprietary Ndot57 base exists (see
-Compliance) but is **not published here**.
+The Ndot57 face is deliberately **not** published here (see below).
 
-## Inspired by / credits
+## Credits
 
-All design credit for the underlying work goes to its upstream authors —
-this repo only merges and restyles their fonts:
+The original designs belong to their authors; this project only merges and
+restyles their fonts.
 
 - **[Nothing Technology Ltd.](https://nothing.tech/)** — the NDOT / NType
-  dot-matrix design language this project is inspired by, crafted by
-  **Seventy Agency** alongside **Colophon Foundry**. "NOTHING", "Ndot" and
-  "NType" are trademarks of Nothing Technology Ltd. This project is
-  unofficial, unaffiliated, and not endorsed by Nothing.
-- **[Interactivate — "NDOT 45 (inspired by NOTHING)"](https://fontstruct.com/fontstructions/show/1947061/ndot-45-inspired-by-nothing)** /
-  **[NDOT 47](https://fontstruct.com/fontstructions/show/2047444/ndot-45-inspired-by-nothing-1)**
-  — the open OFL dot-matrix base (`ndot-47-inspired-by-nothing.ttf`), ©
-  Interactivate 2021, a FontStruct font. Licensed under the
+  dot-matrix design language that inspired this project, made with
+  **Seventy Agency** and **Colophon Foundry**. "NOTHING", "Ndot" and "NType"
+  are trademarks of Nothing Technology Ltd. This project is unofficial,
+  unaffiliated and not endorsed by Nothing.
+- **[Interactivate](https://fontstruct.com/fontstructors/show/1939594/interactivate)**
+  — the FontStruct designer of
+  [NDOT 45](https://fontstruct.com/fontstructions/show/1947061/ndot-45-inspired-by-nothing)
+  and [NDOT 47](https://fontstruct.com/fontstructions/show/2047444/ndot-45-inspired-by-nothing-1)
+  "(inspired by NOTHING)". NDOT 47 is the open OFL dot-matrix base used here,
+  © Interactivate 2021, licensed under the
   [SIL Open Font License 1.1](OFL-1.1.txt).
 - **[The Fira Code project](https://github.com/tonsky/FiraCode)** — the
-  letterforms, © 2014–2021 The Fira Code Project Authors. Licensed under the
+  letterforms, © 2014–2021 The Fira Code Project Authors, licensed under the
   [SIL Open Font License 1.1](OFL-1.1.txt).
 - **[ryanoasis/nerd-fonts](https://github.com/ryanoasis/nerd-fonts)** — the
-  icon font (Font Awesome, Material Design Icons, Devicons, Powerline, etc.)
-  and `Font Patcher` ecosystem, by Ryan L McIntyre and contributors.
-  Code under MIT, patched fonts under OFL 1.1 (see their
-  [license](https://github.com/ryanoasis/nerd-fonts/blob/master/LICENSE)).
-- **[xeji01 "nothingfont"](https://github.com/xeji01/nothingfont)** — local
-  source of the Ndot57 variant used for experimentation. Proprietary — see
-  Compliance.
+  icon glyphs (Font Awesome, Material Design Icons, Devicons, Powerline, and
+  the rest) and the `Font Patcher` tooling, by Ryan L McIntyre and
+  contributors. Code under MIT, patched fonts under OFL 1.1.
+- **[xeji01/nothingfont](https://github.com/xeji01/nothingfont)** — local
+  origin of the Ndot57 base used for experimentation. Proprietary; not
+  distributed here.
 
-## Compliance
+Full copyright and license details for every upstream component are in
+[`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md).
 
-This repository distributes **only** code, docs, and openly licensed source
-fonts:
+## Licensing and compliance
+
+This repository ships **only** code, docs and openly licensed source fonts:
 
 | Component | License | In this repo? |
 | --- | --- | --- |
-| Our build scripts (`native_merge.pe`, `ndot_nerd_symbols.py`, `build_ndot_firacode.sh`, README) | MIT | ✅ `LICENSE` |
-| `ndot-47-inspired-by-nothing.ttf` (base) | SIL OFL 1.1 | ✅ bundled |
-| `FiraCodeNerdFont-Regular.ttf` (merge) | SIL OFL 1.1 + MIT (Nerd Fonts patches) | ✅ bundled |
-| `Ndot57-Regular.otf` and the other Nothing/Lineto fonts | **proprietary** | ❌ kept local in `~/downloads` |
+| Our build scripts, docs and README | MIT | Yes — see [`LICENSE`](LICENSE) |
+| `ndot-47-inspired-by-nothing.ttf` (base) | SIL OFL 1.1 | Yes — bundled |
+| `FiraCodeNerdFont-Regular.ttf` (merge) | SIL OFL 1.1 + MIT | Yes — bundled |
+| Nothing's Ndot57 and the other Nothing/Lineto fonts | **Proprietary** | No — kept local, never uploaded |
 
-Nothing's NDOT font EULA states the font may be used *solely on Nothing brand
-materials* and must **not** be modified, shared, or redistributed. Because a
-build modifies the base, the **Ndot57 variant is for personal/local use only**
-and is deliberately not shipped here or in any release. The
-`build_ndot_firacode.sh` example for Ndot57 points at a local copy you supply
-yourself; do not redistribute builds produced from the proprietary bases.
+### Why the Ndot57 face is not published
 
-The generated merged fonts themselves build on OFL-licensed work
-(Fira Code + NDOT47), so **`ndot-firacode-nerd.ttf` may be used, modified and
-redistributed freely** under the SIL OFL 1.1, provided the upstream
-attributions above are preserved.
+Nothing's font EULA permits the font on Nothing brand materials only, and
+forbids modifying, sharing or redistributing it. Because building this font
+*does* modify the base, the **Ndot57 variant is for personal, local use only**
+and is deliberately left out of this repository and every release. Build it
+yourself from a copy you own — the example in `build_ndot_firacode.sh` shows
+how — and do not redistribute the result.
+
+### What the built font is licensed under
+
+`ndot-firacode-nerd.ttf` is built entirely from OFL-licensed work (Fira Code
+and NDOT 47), so it may be used, modified and redistributed under the
+**SIL Open Font License 1.1**, provided the upstream notices above and in
+[`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md) are kept with it.
