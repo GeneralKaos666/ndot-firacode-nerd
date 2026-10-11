@@ -1,0 +1,76 @@
+# native_merge.pe
+# Merge a second font's glyph coverage into a base font and emit a TrueType
+# (.ttf) or OpenType (.otf) face. This is the FontForge-native merge the
+# script was meant to do.
+#
+# Usage:
+#   fontforge -script native_merge.pe BASE_FONT MERGE_FONT [OUTPUT] [FAMILY] [PSNAME]
+#
+# The output format follows OUTPUT's extension: ".ttf" -> TrueType (quadratic),
+# ".otf" -> OpenType/CFF (cubic). Defaults to TrueType because Termux's
+# ~/.termux/font.ttf is happiest with quadratic outlines.
+#
+# Example:
+#   fontforge -script native_merge.pe \
+#       ndot-47-inspired-by-nothing.ttf FiraCodeNerdFont-Regular.ttf
+#
+# Notes:
+#   * BASE_FONT wins on every code point both fonts share; MERGE_FONT only
+#     contributes glyphs the base is missing (extended Latin, symbols,
+#     Nerd Font icons, ...).
+#   * The merge font is scaled onto the base font's units-per-em grid first;
+#     MergeFonts() does not rescale on its own, so without this the merged
+#     outlines and advance widths would be off by the UPM ratio.
+
+if ( $argc < 3 )
+  Error("Usage: fontforge -script native_merge.pe BASE_FONT MERGE_FONT [OUTPUT] [FAMILY] [PSNAME]")
+endif
+
+base = $1
+extra = $2
+
+if ( $argc >= 4 )
+  outfile = $3
+else
+  outfile = "ndot-firacode-nerd.ttf"
+endif
+
+family = "NDOT FiraCode Nerd"
+psname = "NDOTFiraCodeNerd-Regular"
+if ( $argc >= 6 )
+  family = $4
+  psname = $5
+endif
+
+Print("Compiling high-density OpenType layout...")
+Print("  Base   : ", base)
+Print("  Merge  : ", extra)
+Print("  Output : ", outfile)
+Print("  Family : ", family)
+
+# 1. Learn the base font's em size (and make sure it actually opens).
+Open(base)
+target = $em
+Print("  Base em: ", target)
+Close()
+
+# 2. Open the secondary font and scale it onto the base's em grid.
+Open(extra)
+if ( $em != target )
+  Print("  Scaling merge font from ", $em, " to ", target, " upm")
+  ScaleToEm(target)
+endif
+
+# 3. Merge it into the base; this picks up the scaled in-memory copy and
+#    keeps the base's glyphs (and OpenType lookups) wherever they overlap.
+Open(base)
+MergeFonts(extra)
+
+# 4. Re-brand the merged face so it is not confused with either source.
+SetFontNames(psname, family, family + " Regular", "Regular")
+
+# 5. Emit outlines. The extension of `outfile` selects the format.
+Generate(outfile, "", 0)
+
+Close()
+Print("Success! Font generated completely.")
