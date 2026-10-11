@@ -152,3 +152,7 @@ how — and do not redistribute the result.
 and NDOT 47), so it may be used, modified and redistributed under the
 **SIL Open Font License 1.1**, provided the upstream notices above and in
 [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md) are kept with it.
+
+The released font also carries these terms inside the file itself: its `name`
+table embeds the upstream copyright notice, the full OFL 1.1 text and the
+license URL, so the license travels with the `.ttf` even on its own.

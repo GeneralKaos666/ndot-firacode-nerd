@@ -4,6 +4,10 @@ This project merges and restyles existing fonts. The original designs and
 copyrights stay with their authors. If you redistribute this repository or any
 font built from it, keep these notices and the license texts with it.
 
+The released font `ndot-firacode-nerd.ttf` also embeds the upstream copyright
+notice, the full OFL 1.1 text and the license URL in its `name` table, so the
+terms travel with the `.ttf` file itself.
+
 ## NDOT 47 (inspired by NOTHING) — base font
 
 - File: `ndot-47-inspired-by-nothing.ttf`
