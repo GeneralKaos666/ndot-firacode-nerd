@@ -62,7 +62,7 @@ You need FontForge, Python 3, `fonttools` and `numpy`.
 ./build_ndot_firacode.sh --cells 20   # extra arguments go to the restyle step
 ```
 
-The build runs in two steps:
+The build runs in three steps:
 
 1. **`native_merge.pe`** (FontForge) merges the base with the merge font,
    scaling the merge font onto the base's units-per-em. Because the base comes
@@ -73,9 +73,16 @@ The build runs in two steps:
    sub-sampling and a 0.34 coverage threshold — and rebuilds the glyph from
    dots. It handles both `glyf` (TTF) and CFF (OTF) tables, and recalculates
    the glyph bounds and side bearings.
+3. **Licence embedding** — the script writes the upstream copyright notice, the
+   full OFL 1.1 text and the license URL into the font's `name` table. It is a
+   byte-level edit (the new table is appended and the sfnt checksums are
+   recomputed), so the font ends up carrying its own licence.
 
-The `BASE`, `MERGE`, `OUT`, `FAMILY` and `PSNAME` environment variables
-override the defaults (see the top of `build_ndot_firacode.sh`).
+`BASE`, `MERGE`, `OUT`, `FAMILY` and `PSNAME` override the inputs and naming.
+`LICENSE_FILE` (default `OFL-1.1.txt`) is the notice text; set it empty to skip
+embedding, which is required for proprietary-base builds. `LICENSE_COPYRIGHT`,
+`LICENSE_TRADEMARK` and `LICENSE_URL` override the notice text. See the top of
+`build_ndot_firacode.sh` for the details.
 
 ### Install on Termux
 
