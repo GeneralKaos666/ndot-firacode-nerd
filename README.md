@@ -28,14 +28,19 @@ committed.
 
 ## Preview
 
-![Terminal preview](docs/preview.png)
+Real captures from a terminal in Termux (`xfce4-terminal` under Termux:X11)
+with the built font installed:
+
+![Terminal session using NDOT FiraCode Nerd](docs/screenshot-termux.png)
 
 Every Nerd Font icon is redrawn from dots — Powerline, Font Awesome, Devicons,
-Seti, Font Logos, Weather, Octicons, Material Design and Codicons:
+Seti, Font Logos, Weather, Octicons, Material Design and Codicons — while
+letters, digits and punctuation keep the base font's dot-matrix forms:
 
-![Nerd Font icons redrawn as NDOT dots](docs/icons.png)
+![Nerd Font icons redrawn as NDOT dots](docs/screenshot-icons.png)
 
-Images are generated from the built font by `docs/make_preview.py`.
+The font-only specimens `docs/hero.png`, `docs/preview.png` and `docs/icons.png`
+are rendered directly from the built font by `docs/make_preview.py`.
 
 ## Source fonts
 
