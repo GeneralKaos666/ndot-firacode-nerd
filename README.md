@@ -4,6 +4,8 @@ A personal terminal font that renders [Nerd Font](https://github.com/ryanoasis/n
 icons in the dot-matrix style of **Nothing's NDOT** while keeping normal
 letterforms untouched.
 
+![NDOT FiraCode Nerd](docs/hero.png)
+
 The build merges two fonts and then redraws only the icon plane:
 
 | Role | Font | Code points |
@@ -23,6 +25,17 @@ ndot57-firacode-nerd.ttf # Ndot57 base (1000 upm)  — personal build only, not 
 The two source fonts are bundled in the repo (both freely licensed — see
 Compliance). Built outputs are published as [Releases](#releases) rather than
 committed.
+
+## Preview
+
+![Terminal preview](docs/preview.png)
+
+Every Nerd Font icon is redrawn from dots — Powerline, Font Awesome, Devicons,
+Seti, Font Logos, Weather, Octicons, Material Design and Codicons:
+
+![Nerd Font icons redrawn as NDOT dots](docs/icons.png)
+
+Images are generated from the built font by `docs/make_preview.py`.
 
 ## Source fonts
 

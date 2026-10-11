@@ -1,0 +1,17 @@
+# Fonts and images are binary — never diff/merge as text, never touch EOLs.
+*.ttf   binary
+*.otf   binary
+*.ttc   binary
+*.woff  binary
+*.woff2 binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+
+# Text/source files use LF everywhere.
+*.sh   text eol=lf
+*.pe   text eol=lf
+*.py   text eol=lf
+*.md   text eol=lf
+*.txt  text eol=lf
